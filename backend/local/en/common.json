@@ -1,0 +1,17 @@
+{
+  "alert": "⚠️ Alert: Increase in water-borne diseases reported in your area. Please check households for safe drinking water and sanitation.",
+  "outbreakChance": "Outbreak Chance",
+  "waterQuality": "Water Quality Score",
+  "precautions": "Precautions",
+  "pH": "pH",
+  "turbidity": "Turbidity",
+  "bacteria": "Bacteria",
+  "humidity": "Humidity",
+  "rain": "Rain",
+  "wind": "Wind",
+  "submit": "Submit",
+  "save": "Save",
+  "weatherSunny": "☀️ Sunny",
+  "weatherRainy": "🌧️ Rainy",
+  "weatherCloudy": "☁️ Cloudy"
+}
