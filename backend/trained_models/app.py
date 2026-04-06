@@ -36,7 +36,7 @@ async def predict_class(data: InputData):
         if hasattr(clf_model, "predict_proba"):
             probas = clf_model.predict_proba(features)
             outbreak_percentage = round(float(probas[0][1]) * 100, 2)
-
+        print(f"Outbreak Probability: {outbreak_percentage}%")
         return {
             "outbreak_prediction": outbreak_prediction,
             "outbreak_probability_percentage": outbreak_percentage
@@ -53,7 +53,6 @@ async def predict_regression(data: InputData):
         return {"confirmed_waterborne_cases": float(prediction[0])}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 

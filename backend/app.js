@@ -10,7 +10,7 @@ const authRoutes = require('./routes/auth');
 const predictionRoutes = require('./routes/predictions');
 const reportRoutes = require('./routes/reports');
 const userRoutes = require('./routes/users');
-
+const doctorRoutes = require('./routes/doctorRoutes');
 // Initialize express app
 const app = express();
 
@@ -50,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/predictions', predictionRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/doctor', doctorRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

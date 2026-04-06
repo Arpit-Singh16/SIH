@@ -1,12 +1,24 @@
-const express = require('express');
-const { predict, getPredictionHistory } = require('../controllers/predictionController');
-const { protect } = require('../middleware/auth');
+const express = require("express");
+const {
+  predict,
+  getLatestPrediction,
+  getPredictionHistory,
+  getHomepageData
+} = require("../controllers/predictionController");
+
+const { protect } = require("../middleware/auth");
 
 const router = express.Router();
 
 router.use(protect);
 
-router.post('/', predict);
-router.get('/history', getPredictionHistory);
+// ✅ /api/predictions
+router.post("/", predict);
+
+// ✅ /api/predictions/latest
+router.get("/latest", getLatestPrediction);
+
+router.get("/history",getPredictionHistory);
+router.get("/homepage-data", getHomepageData);
 
 module.exports = router;

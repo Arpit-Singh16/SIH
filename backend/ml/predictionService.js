@@ -1,57 +1,53 @@
-// // ml/predictionService.js
+
 // const ModelLoader = require('./modelLoader');
 // const Prediction = require('../models/Prediction');
+// const Report = require('../models/Report');
+// const SymptomReport = require('../models/SymptomReport');
 
 // class PredictionService {
-//   constructor() {
-//     this.modelLoader = ModelLoader;
-//   }
-
 //   async makePrediction(userId, inputData) {
 //     try {
-//       // Predict outbreak and cases
-//       const outbreakPrediction = await this.modelLoader.predictOutbreak(inputData);
-//       const casesPrediction = await this.modelLoader.predictCases(inputData);
+//       // ✅ If no inputData is provided, fetch from database
+//       if (!inputData || Object.keys(inputData).length === 0) {
+//         const latestWater = await Report.findOne({ userId }).sort({ createdAt: -1 });
+//         const latestSymptoms = await SymptomReport.findOne({ userId }).sort({ createdAt: -1 });
 
-//       // Save prediction to database
-//       const predictionRecord = await Prediction.create({
-//         userId,
-//         inputData,
-//         outbreakPrediction,
-//         casesPrediction
-//       });
+//         if (!latestWater || !latestSymptoms) {
+//           throw new Error('No recent data found for prediction');
+//         }
 
-//       // Return prediction summary
+//         // Merge the needed fields into a single object
+//         inputData = {
+//           phValue: latestWater.phValue,
+//           turbidity: latestWater.turbidity,
+//           nitrate_mg_per_l: latestWater.nitrate_mg_per_l,
+//           waterSource: latestWater.waterSource,
+//           village: latestSymptoms.village,
+//           symptoms: latestSymptoms.symptoms
+//         };
+//       }
+
+//       // Send combined data to ML model
+//       const outbreakPrediction = await ModelLoader.predictOutbreak(inputData, userId);
+//       const casesPrediction = await ModelLoader.predictCases(inputData, userId);
+
 //       return {
 //         outbreakChance: outbreakPrediction.probability,
-//         predictedCases: casesPrediction.predictedCases,
-//         predictionId: predictionRecord._id
+//         predictedCases: casesPrediction.predictedCases
 //       };
 //     } catch (error) {
 //       console.error('Prediction service error:', error);
 //       throw error;
 //     }
 //   }
-
-//   async getHistoricalPredictions(userId, limit = 10) {
-//     try {
-//       const predictions = await Prediction.find({ userId })
-//         .sort({ createdAt: -1 })
-//         .limit(limit);
-
-//       return predictions;
-//     } catch (error) {
-//       console.error('Error fetching historical predictions:', error);
-//       throw error;
-//     }
-//   }
 // }
 
 // module.exports = new PredictionService();
-const ModelLoader = require('./modelLoader');
-const Prediction = require('../models/Prediction');
-const Report = require('../models/Report');
-const SymptomReport = require('../models/SymptomReport');
+
+
+const ModelLoader = require("./modelLoader");
+const Report = require("../models/Report");
+const SymptomReport = require("../models/SymptomReport");
 
 class PredictionService {
   async makePrediction(userId, inputData) {
@@ -61,34 +57,41 @@ class PredictionService {
         const latestWater = await Report.findOne({ userId }).sort({ createdAt: -1 });
         const latestSymptoms = await SymptomReport.findOne({ userId }).sort({ createdAt: -1 });
 
-        if (!latestWater || !latestSymptoms) {
-          throw new Error('No recent data found for prediction');
+        if (!latestWater) {
+          throw new Error("No recent water report found for prediction");
         }
 
-        // Merge the needed fields into a single object
+        // ✅ district fallback
+        const district =
+          latestWater.location?.district || latestSymptoms?.district || "Unknown District";
+
+        // ✅ ML required fields must exist
         inputData = {
+          rainfall_mm: 0,
+          temperature_c: 30,
           phValue: latestWater.phValue,
           turbidity: latestWater.turbidity,
           nitrate_mg_per_l: latestWater.nitrate_mg_per_l,
           waterSource: latestWater.waterSource,
-          village: latestSymptoms.village,
-          symptoms: latestSymptoms.symptoms
+          district,
         };
       }
 
-      // Send combined data to ML model
-      const outbreakPrediction = await ModelLoader.predictOutbreak(inputData, userId);
-      const casesPrediction = await ModelLoader.predictCases(inputData, userId);
+      // ✅ Send to ML model (NO DB saving here)
+      const outbreakPrediction = await ModelLoader.predictOutbreak(inputData);
+      const casesPrediction = await ModelLoader.predictCases(inputData);
 
+      // ✅ Return full objects so controller can save properly
       return {
-        outbreakChance: outbreakPrediction.probability,
-        predictedCases: casesPrediction.predictedCases
+        outbreakPrediction,
+        casesPrediction,
       };
     } catch (error) {
-      console.error('Prediction service error:', error);
+      console.error("Prediction service error:", error.message);
       throw error;
     }
   }
 }
 
 module.exports = new PredictionService();
+

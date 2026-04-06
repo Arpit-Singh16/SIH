@@ -14,19 +14,28 @@ class ModelLoader {
   prepareFeatures(data) {
     // Use dynamic data if provided, otherwise defaults
     return {
-      rainfall_mm: data.rainfall_mm ,
-      temperature_c: data.temperature_c ,
-      ph: data.ph ,
-      turbidity: data.turbidity ,
+      rainfall_mm: data.rainfall_mm,
+      temperature_c: data.temperature_c,
+      ph: data.phValue || data.ph,
+      turbidity: data.turbidity,
       nitrate_mg_per_l: data.nitrate_mg_per_l,
-      water_source: data.water_source ,
+      water_source: data.waterSource || data.water_source,
       district: data.district
     };
   }
   async predictOutbreak(data, userId = null) {
     try {
-      const payload = this.prepareFeatures(data);
-      console.log(data)
+      const dbInputData = {
+        rainfall_mm: data.rainfall_mm,
+        temperature_c: data.temperature_c,
+        phValue: data.phValue || data.ph,
+        turbidity: data.turbidity,
+        nitrate_mg_per_l: data.nitrate_mg_per_l,
+        waterSource: data.waterSource || data.water_source,
+        district: data.district
+      };
+
+      const payload = this.prepareFeatures(dbInputData);
       console.log("Sending outbreak payload:", payload);
 
       const response = await axios.post(
@@ -44,7 +53,7 @@ class ModelLoader {
       if (userId) {
         await Prediction.create({
           userId,
-          inputData: payload,
+          inputData: dbInputData,
           outbreakPrediction
         });
       }
@@ -58,7 +67,17 @@ class ModelLoader {
 
   async predictCases(data, userId = null) {
     try {
-      const payload = this.prepareFeatures(data);
+      const dbInputData = {
+        rainfall_mm: data.rainfall_mm,
+        temperature_c: data.temperature_c,
+        phValue: data.phValue || data.ph,
+        turbidity: data.turbidity,
+        nitrate_mg_per_l: data.nitrate_mg_per_l,
+        waterSource: data.waterSource || data.water_source,
+        district: data.district
+      };
+
+      const payload = this.prepareFeatures(dbInputData);
       console.log("Sending regression payload:", payload);
 
       const response = await axios.post(
@@ -75,7 +94,7 @@ class ModelLoader {
       if (userId) {
         await Prediction.create({
           userId,
-          inputData: payload,
+          inputData: dbInputData,
           casesPrediction
         });
       }
