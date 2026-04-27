@@ -5,13 +5,20 @@ const predictionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+      reportId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Report",
+      required: true,
+    },
+  village: String,
+  district: String,
   inputData: {
     rainfall_mm: Number,
     temperature_c: Number,
-    ph: Number,
+    phValue: Number,
     turbidity: Number,
     nitrate_mg_per_l: Number,
-    water_source: String,
+    waterSource: String,
     district: String
   },
   outbreakPrediction: {

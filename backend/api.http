@@ -1,0 +1,78 @@
+### Health check
+
+GET {{baseUrl}}/health
+
+### Register (if needed)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "village": "Village X",
+  "district": "Sirsa",
+  "state": "Haryana",
+  "languagePreference": "en",
+  "phone": "9999999999",
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Login (copy token from response)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Get profile (protected)
+GET {{baseUrl}}/users/profile
+Authorization: Bearer {{token}}
+
+### Update profile (protected)
+PUT {{baseUrl}}/users/profile
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Updated Name",
+  "village": "Village Y",
+  "district": "Sirsa",
+  "state": "Haryana",
+  "phone": "8888888888"
+}
+
+### Post water report (protected)
+POST {{baseUrl}}/reports/water
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "phValue": 7.0,
+  "turbidity": 10,
+  "bacterialevel": 120,
+  "village": "Kalanwali",
+  "waterSource": "Well",
+  "nitrate_mg_per_l": 3
+}
+
+### Get water reports (protected)
+GET {{baseUrl}}/reports/water
+Authorization: Bearer {{token}}
+
+### Trigger / get latest prediction (protected)
+GET {{baseUrl}}/predictions/latest
+Authorization: Bearer {{token}}
+
+### Get homepage prediction data (protected)
+GET {{baseUrl}}/predictions/homepage
+Authorization: Bearer {{token}}
+
+### Doctor: predictions by district (protected)
+GET {{baseUrl}}/doctor/predictions/district?district=Sirsa
+Authorization: Bearer {{token}}
+
+### Doctor: graph data (protected)
+GET {{baseUrl}}/doctor/predictions/graph?district=Sirsa
+Authorization: Bearer {{token}}
